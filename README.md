@@ -22,7 +22,8 @@ prefix: evse_0
   it charges, teal while it discharges) and the lowest house SOC; the EVSE node the current offered
   to the car, the current actually drawn, the line voltage and the relay; the car node its power,
   what the pilot says, and today's energy as kWh, percent of the car's battery and cost. The
-  connectors animate in the direction power flows, faster with more power.
+  EVSE → car link animates while the car charges, faster with more power; the battery → EVSE link
+  only while that charge is being drawn from the battery (nothing ever flows towards the battery).
 - **Controller** (Normal and Fast): "Normal holds the battery at −1.0 kW", a centre-zero bar of
   the filtered battery power with the target band drawn on it, and the plain-English verdict
   ("in the band", "0.7 kW of room to raise the car", "no vehicle to charge"); below it the offered

@@ -218,7 +218,9 @@ class EsphomeEvseCard extends EvseBase {
     `;
   }
 
-  // Battery -> EVSE -> car, with the flow animated along the connectors.
+  // Battery -> EVSE -> car. The EVSE -> car link animates while the car charges; the battery ->
+  // EVSE link only while that charge is coming out of the battery (never towards the battery:
+  // the EVSE can't feed it, and PV charging the battery is the battery node's own business).
   _flow(mode) {
     const batt = this.numIn("ha_battery_power", "kW") ?? this.numIn("ha_battery_power_filtered", "kW");
     const car = this.numIn("power", "kW");
