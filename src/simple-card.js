@@ -5,6 +5,7 @@ import { EvseBase, baseStyles, fmt } from "./base.js";
 //   prefix: evse_0            start of the EVSE's entity ids
 //   title:                    optional title line above the status
 //   show_status: true         the firmware's status line ("Fast Charging 18A", "Normal - No vehicle")
+//   show_vehicle: true        plug chip from the control pilot (No vehicle / Vehicle connected / Charging)
 //   show_buttons: true        Stop / Normal / Fast
 //   power_max_kw: 11          outer ring full scale
 //   battery_max_kw: 10        inner ring half scale (centre-zero)
@@ -25,6 +26,15 @@ const POWER_STOPS = [
   [7.2, "#EF6C00"],
   [11, "#C62828"],
 ];
+
+// Vehicle chip from the control pilot, shown in every mode (the status line only names it outside Stop).
+const CP = {
+  Idle: { text: "No vehicle", icon: "mdi:power-plug-off-outline", color: "var(--ev-muted)" },
+  "EV Connected": { text: "Vehicle connected", icon: "mdi:ev-plug-type1", color: "var(--ev-info)" },
+  "EV Charging": { text: "Charging", icon: "mdi:ev-plug-type1", color: "var(--ev-good)" },
+  "EV Vent": { text: "Vent required", icon: "mdi:alert-circle-outline", color: "var(--ev-bad)" },
+  Error: { text: "Pilot error", icon: "mdi:alert-circle-outline", color: "var(--ev-bad)" },
+};
 
 const CX = 100;
 const CY = 100;
@@ -55,12 +65,12 @@ class EsphomeEvseSimpleCard extends EvseBase {
   }
 
   setConfig(config) {
-    super.setConfig({ show_status: true, show_buttons: true, power_max_kw: 11, battery_max_kw: 10, ...config });
+    super.setConfig({ show_status: true, show_vehicle: true, show_buttons: true, power_max_kw: 11, battery_max_kw: 10, ...config });
   }
 
   watched() {
     return [
-      "power", "daily_energy", "daily_cost", "daily_percent", "state_text_sensor_output", "ha_battery_power",
+      "power", "daily_energy", "daily_cost", "daily_percent", "state_text_sensor_output", "cp_state", "ha_battery_power",
       "ha_battery_power_filtered", "number:charger_mode",
     ];
   }
@@ -76,12 +86,21 @@ class EsphomeEvseSimpleCard extends EvseBase {
     }
     const mode = Math.round(this.num("number:charger_mode") ?? -1);
     const status = this.str("state_text_sensor_output");
+    const cpText = this.str("cp_state");
+    const cp = cpText ? (CP[cpText] ?? { text: cpText, icon: "mdi:help-circle-outline", color: "var(--ev-muted)" }) : undefined;
     return html`
       <ha-card>
         <div class="wrap">
           ${this._config.title ? html`<div class="title">${this._config.title}</div>` : ""}
           ${this._config.show_status && status
             ? html`<div class="status clickable" @click=${() => this.moreInfo("state_text_sensor_output")}>${status}</div>`
+            : ""}
+          ${this._config.show_vehicle && cp
+            ? html`<div class="vehicle">
+                <span class="chip clickable" style="--c:${cp.color}" @click=${() => this.moreInfo("cp_state")}>
+                  <ha-icon icon=${cp.icon}></ha-icon>${cp.text}
+                </span>
+              </div>`
             : ""}
           ${this._config.show_buttons
             ? html`<div class="modes">
@@ -167,9 +186,29 @@ class EsphomeEvseSimpleCard extends EvseBase {
         font-size: clamp(0.95rem, 4cqw, 1.3rem);
         font-weight: 700;
         line-height: 1.2;
-        padding: 10px 8px;
-        margin: 0 -4px 10px;
+        padding: 10px 8px 6px;
+        margin: 0 -4px 4px;
         overflow-wrap: anywhere;
+      }
+      .vehicle {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 12px 3px 9px;
+        border-radius: 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--c);
+        background: color-mix(in srgb, var(--c) 14%, transparent);
+        white-space: nowrap;
+      }
+      .chip ha-icon {
+        --mdc-icon-size: 16px;
       }
       .modes {
         display: grid;

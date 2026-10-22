@@ -20,8 +20,10 @@ prefix: evse_0
 
 ## The Simple card
 
-- **Status** from the firmware: "Fast Charging 18A", "Normal - No vehicle", "Fast Paused - Wait
-  for PV surplus", … (`show_status: false` hides it).
+- **Status** from the firmware: "Fast Charging 18A", "Normal Ready 12A - Vehicle connected",
+  "Normal - No vehicle", "Fast Paused - Wait for PV surplus", … (`show_status: false` hides it).
+- **Vehicle chip** from the control pilot, in every mode including Stopped: grey "No vehicle",
+  blue "Vehicle connected" (plugged in, not drawing), green "Charging" (`show_vehicle: false`).
 - **Stop / Normal / Fast** in red, green and amber, the active one filled (`show_buttons: false`).
 - **Gauge**: outer ring charger power 0–11 kW, green → amber (3.6) → orange (7.2) → red (11);
   inner ring house-battery power from the top, green to the right while it charges, red to the
@@ -98,6 +100,7 @@ Simple card:
 | Option | Default | |
 | --- | --- | --- |
 | `show_status` | `true` | The firmware's status line. |
+| `show_vehicle` | `true` | The plug chip (No vehicle / Vehicle connected / Charging). |
 | `show_buttons` | `true` | Stop / Normal / Fast. |
 | `power_max_kw` | `11` | Outer ring full scale. |
 | `battery_max_kw` | `10` | Inner ring half scale (centre-zero). |
