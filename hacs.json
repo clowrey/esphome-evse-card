@@ -1,0 +1,6 @@
+{
+  "name": "ESPHome EVSE Card",
+  "filename": "esphome-evse-card.js",
+  "homeassistant": "2025.1.0",
+  "render_readme": true
+}
