@@ -251,7 +251,7 @@ class EsphomeEvseCard extends EvseBase {
           <div class="big num" style="color:${battColor}">${bv}<span class="unit">${bu}</span></div>
           <div class="sub">${{ charging: "charging", discharging: "discharging", idle: "idle", unknown: "no data" }[battState]}${soc !== undefined ? html` · ${fmt(this.hass, soc, 0)} %` : ""}</div>
         </div>
-        ${this._connector(battState === "discharging" ? "fwd" : battState === "charging" ? "back" : "", battColor, Math.abs(batt ?? 0))}
+        ${this._connector(charging && battState === "discharging" ? "fwd" : "", "var(--ev-discharge)", Math.min(car ?? 0, Math.abs(batt ?? 0)))}
         <div class="node evse clickable" @click=${() => this.moreInfo("number:current_setpoint")}>
           <div class="label">EVSE</div>
           <ha-icon class="node-icon" style="color:${offered ? "var(--ev-car)" : "var(--ev-muted)"}" icon="mdi:ev-station"></ha-icon>
