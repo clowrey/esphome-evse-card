@@ -1,17 +1,38 @@
 # ESPHome EVSE Card
 
-One Home Assistant card for the [ESPHome EVSE](https://github.com/clowrey/esphome-evse): what the
-house battery, the charger and the car are doing, what the Normal/Fast controller is holding and
-how far off it is, the controls, and the last 24 hours.
+Two Home Assistant cards for the [ESPHome EVSE](https://github.com/clowrey/esphome-evse), in one
+install. Use either, or both on different dashboards.
+
+| `custom:esphome-evse-card` (Advanced) | `custom:esphome-evse-simple-card` (Simple) |
+| --- | --- |
+| What the house battery, the charger and the car are doing, what the Normal/Fast controller is holding and how far off it is, the controls, the last event and the last 24 hours. | The status line, Stop / Normal / Fast, and the horseshoe gauge: charger power on the outer ring, house-battery power on the inner centre-zero ring, today's energy inside. |
+| ![Advanced card](https://raw.githubusercontent.com/clowrey/esphome-evse-card/main/docs/evse-card.png) | ![Simple card](https://raw.githubusercontent.com/clowrey/esphome-evse-card/main/docs/evse-simple-card.png) |
 
 ```yaml
 type: custom:esphome-evse-card
 prefix: evse_0
 ```
 
-![The card: house battery, EVSE and car in a row with the flow animated between them, the controller's target band with the battery marker, the offered current against its limits, Stop / Normal / Fast and the current stepper, the last event and a 24 h chart](https://raw.githubusercontent.com/clowrey/esphome-evse-card/main/docs/evse-card.png)
+```yaml
+type: custom:esphome-evse-simple-card
+prefix: evse_0
+```
 
-## What it shows
+## The Simple card
+
+- **Status** from the firmware: "Fast Charging 18A", "Normal - No vehicle", "Fast Paused - Wait
+  for PV surplus", … (`show_status: false` hides it).
+- **Stop / Normal / Fast** in red, green and amber, the active one filled (`show_buttons: false`).
+- **Gauge**: outer ring charger power 0–11 kW, green → amber (3.6) → orange (7.2) → red (11);
+  inner ring house-battery power from the top, green to the right while it charges, red to the
+  left while it discharges, ±10 kW full scale. Inside: NET battery kW, the charger's kW, and
+  ADDED TODAY as kWh, cost and percent of the car's battery. `power_max_kw` and `battery_max_kw`
+  change the scales.
+
+It is drawn in SVG, so it needs no gauge card from HACS, and it is about the size of the stacked
+status + buttons + horseshoe cards it replaces.
+
+## The Advanced card
 
 - **Header**: the charger's mode (Stopped / Manual / Normal / Fast), the vehicle state from the
   control pilot (No vehicle / Vehicle connected / Charging / Pilot error), and a chip when the
@@ -57,13 +78,29 @@ type **JavaScript module**.
 
 ## Options
 
+Both cards:
+
 | Option | Default | |
 | --- | --- | --- |
 | `prefix` | `evse_0` | Start of the EVSE's entity ids (`sensor.evse_0_power`, `number.evse_0_current_setpoint`, …). The ESPHome device name with `-` as `_`. |
-| `title` | the device name | Card title. |
+| `title` | Advanced: the device name; Simple: none | Title line. |
+
+Advanced card:
+
+| Option | Default | |
+| --- | --- | --- |
 | `soc_entities` | `[]` | House-battery state-of-charge sensors to show on the battery node; with several, the lowest is shown (the one the firmware stops charging on). |
 | `show_controls` | `true` | Stop / Normal / Fast and the current stepper. |
 | `show_chart` | `true` | The 24 h chart. |
+
+Simple card:
+
+| Option | Default | |
+| --- | --- | --- |
+| `show_status` | `true` | The firmware's status line. |
+| `show_buttons` | `true` | Stop / Normal / Fast. |
+| `power_max_kw` | `11` | Outer ring full scale. |
+| `battery_max_kw` | `10` | Inner ring half scale (centre-zero). |
 
 ```yaml
 type: custom:esphome-evse-card

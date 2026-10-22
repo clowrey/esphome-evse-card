@@ -1,7 +1,7 @@
 {
   "name": "esphome-evse-card",
-  "version": "0.1.1",
-  "description": "Home Assistant card for the ESPHome EVSE: power flow, charge controller, controls and history in one card",
+  "version": "0.2.0",
+  "description": "Home Assistant cards for the ESPHome EVSE: an advanced card with power flow, controller and history, and a simple gauge card",
   "private": true,
   "type": "module",
   "scripts": {
