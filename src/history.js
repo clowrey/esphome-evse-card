@@ -95,15 +95,20 @@ export async function fetchDay(hass, ids) {
     const out = {};
     for (const id of ids) {
       const points = (stats[id] ?? []).filter((p) => Number.isFinite(p.mean)).map((p) => [p.start, p.mean]);
-      if (points.length) {
+      // Statistics only start once the sensor has a state_class; fill the time before that
+      // (or all of it) from the recorded states.
+      const statsFrom = points.length ? points[0][0] : end;
+      if (statsFrom - start <= 2 * BUCKET_MS) {
         out[id] = points;
         continue;
       }
+      let before = [];
       try {
-        out[id] = await fromHistory(hass, id, start, end);
+        before = await fromHistory(hass, id, start, statsFrom);
       } catch (e) {
-        out[id] = [];
+        before = [];
       }
+      out[id] = [...before.filter(([t]) => t < statsFrom), ...points];
     }
     return out;
   })();
